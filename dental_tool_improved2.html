@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahnarztpraxis Dokumentations-Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        .left-panel {
+            padding: 30px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+        }
+
+        .right-panel {
+            padding: 30px;
+            background: white;
+        }
+
+        .billing-system {
+            margin-bottom: 30px;
+        }
+
+        .billing-system h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .billing-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .billing-btn {
+            padding: 15px 20px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .billing-btn:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .billing-btn.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .categories {
+            display: none;
+        }
+
+        .categories.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .category {
+            margin-bottom: 25px;
+        }
+
+        .category h4 {
+            color: #34495e;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            padding: 10px 15px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .template-buttons {
+            display: grid;
+            gap: 8px;
+        }
+
+        .template-btn {
+            padding: 12px 15px;
+            border: 1px solid #bdc3c7;
+            background: white;
+            color: #2c3e50;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+        }
+
+        .template-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .template-btn.active {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        /* Options panel styling - now appears after template selection */
+        .options-panel {
+            display: none;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 2px solid #e74c3c;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.1);
+        }
+
+        .options-panel.active {
+            display: block;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 1000px;
+            }
+        }
+
+        .options-panel h5 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 8px;
+        }
+
+        .option-group {
+            margin-bottom: 18px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #3498db;
+        }
+
+        .option-group label {
+            display: block;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .option-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            padding: 6px 12px;
+            border: 1px solid #bdc3c7;
+            background: white;
+            color: #34495e;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover {
+            background: #ecf0f1;
+            transform: translateY(-1px);
+        }
+
+        .option-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .output-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .output-text {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: #2c3e50;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateX(300px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .success-message.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .billing-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .left-panel, .right-panel {
+                padding: 20px;
+            }
+        }
+
+        .placeholder-text {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 40px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦷 Zahnarztpraxis Dokumentations-Tool</h1>
+            <p>Automatisierte Fallbeschreibung für BEMA & GOZ Abrechnungssysteme</p>
+        </div>
+
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="billing-system">
+                    <h3>Abrechnungssystem wählen</h3>
+                    <div class="billing-buttons">
+                        <button class="billing-btn" onclick="selectBillingSystem('bema')">BEMA (Kassenpatienten)</button>
+                        <button class="billing-btn" onclick="selectBillingSystem('goz')">GOZ (Privatpatienten)</button>
+                    </div>
+                </div>
+
+                <div id="bema-categories" class="categories">
+                    <div class="category">
+                        <h4>Routine/Kontrolle</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('befund-erwachsene')">Befund (Erwachsene)</button>
+                            <button class="template-btn" onclick="selectTemplate('befund-kind')">Befund (Kind)</button>
+                            <button class="template-btn" onclick="selectTemplate('opg')">OPG</button>
+                        </div>
+                        <!-- Options panel will be inserted here when a template is selected -->
+                        <div id="options-routine" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Füllungstherapie</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('fuellung')">Füllung</button>
+                        </div>
+                        <div id="options-fuellung" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Endodontie</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('endo-wk')">Endo WK</button>
+                            <button class="template-btn" onclick="selectTemplate('endo-wf')">Endo WF</button>
+                        </div>
+                        <div id="options-endodontie" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Zahnersatz</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('ze-praep')">ZE Präp</button>
+                            <button class="template-btn" onclick="selectTemplate('ze-einsetzen')">ZE Einsetzen</button>
+                            <button class="template-btn" onclick="selectTemplate('ze-ktr')">ZE Kontrolle</button>
+                            <button class="template-btn" onclick="selectTemplate('stift')">Stift</button>
+                            <button class="template-btn" onclick="selectTemplate('krone-wiederbefestigen')">Krone wiederbefestigen</button>
+                            <button class="template-btn" onclick="selectTemplate('teleskopprothese')">Teleskopprothese</button>
+                            <button class="template-btn" onclick="selectTemplate('wachseinprobe')">Wachseinprobe</button>
+                        </div>
+                        <div id="options-zahnersatz" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Sonstiges</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('schiene')">Schiene</button>
+                        </div>
+                        <div id="options-sonstiges" class="options-panel"></div>
+                    </div>
+                </div>
+
+                <div id="goz-categories" class="categories">
+                    <div class="category">
+                        <h4>Routine/Kontrolle</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('befund-erwachsene')">Befund (Erwachsene)</button>
+                            <button class="template-btn" onclick="selectTemplate('befund-kind')">Befund (Kind)</button>
+                            <button class="template-btn" onclick="selectTemplate('opg')">OPG</button>
+                        </div>
+                        <div id="options-routine-goz" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Füllungstherapie</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('fuellung')">Füllung</button>
+                        </div>
+                        <div id="options-fuellung-goz" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Endodontie</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('endo-wk')">Endo WK</button>
+                            <button class="template-btn" onclick="selectTemplate('endo-wf')">Endo WF</button>
+                        </div>
+                        <div id="options-endodontie-goz" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Zahnersatz</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('ze-praep')">ZE Präp</button>
+                            <button class="template-btn" onclick="selectTemplate('ze-einsetzen')">ZE Einsetzen</button>
+                            <button class="template-btn" onclick="selectTemplate('ze-ktr')">ZE Kontrolle</button>
+                            <button class="template-btn" onclick="selectTemplate('stift')">Stift</button>
+                            <button class="template-btn" onclick="selectTemplate('krone-wiederbefestigen')">Krone wiederbefestigen</button>
+                            <button class="template-btn" onclick="selectTemplate('teleskopprothese')">Teleskopprothese</button>
+                            <button class="template-btn" onclick="selectTemplate('wachseinprobe')">Wachseinprobe</button>
+                        </div>
+                        <div id="options-zahnersatz-goz" class="options-panel"></div>
+                    </div>
+                    <div class="category">
+                        <h4>Sonstiges</h4>
+                        <div class="template-buttons">
+                            <button class="template-btn" onclick="selectTemplate('schiene')">Schiene</button>
+                        </div>
+                        <div id="options-sonstiges-goz" class="options-panel"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="output-section">
+                    <h3>📝 Generierte Fallbeschreibung</h3>
+                    <div id="output-text" class="output-text">
+                        <div class="placeholder-text">
+                            Wählen Sie zunächst ein Abrechnungssystem und dann eine Behandlungsvorlage aus, um die automatische Fallbeschreibung zu starten.
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn copy-btn" onclick="copyText()">📋 Text kopieren</button>
+                        <button class="action-btn reset-btn" onclick="resetAll()">🔄 Zurücksetzen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-message" class="success-message">
+        ✅ Text erfolgreich kopiert!
+    </div>
+
+    <script>
+        // State management
+        let currentBillingSystem = null;
+        let currentTemplate = null;
+        let templateOptions = {};
+
+        // Template definitions with options
+        const templates = {
+            'befund-erwachsene': {
+                name: 'Befund (Erwachsene)',
+                category: 'routine',
+                options: [
+                    {
+                        label: 'Patientenstatus',
+                        key: 'status',
+                        type: 'select',
+                        values: ['beschwerdenfrei', 'mit leichten Beschwerden', 'mit starken Beschwerden']
+                    },
+                    {
+                        label: 'Mundhygiene',
+                        key: 'mundhygiene',
+                        type: 'select',
+                        values: ['sehr gut', 'gut', 'mäßig', 'schlecht']
+                    },
+                    {
+                        label: 'MSH, Zunge, Gaumen, Mundboden',
+                        key: 'weichteile',
+                        type: 'select',
+                        values: ['o.p.B.', 'Gingivitis', 'Parodontitis', 'Auffälligkeiten vorhanden']
+                    },
+                    {
+                        label: 'Bissart',
+                        key: 'biss',
+                        type: 'select',
+                        values: ['neutral', 'Kopfbiss', 'Kreuzverzahnung', 'Distalbiss', 'Mesialbiss']
+                    },
+                    {
+                        label: 'PSI-Wert',
+                        key: 'psi',
+                        type: 'input',
+                        placeholder: 'z.B. 0-1-2-1'
+                    },
+                    {
+                        label: 'Röntgen empfohlen',
+                        key: 'roentgen',
+                        type: 'select',
+                        values: ['ja', 'nein', 'OPG + Bissflügel empfohlen']
+                    }
+                ],
+                template: `Pat. kommt {status} zur Kontrolle, PZR ist gerade durchgeführt.
+
+01-Befund aufgenommen und bespr.:
+
+- Muhy: {mundhygiene}
+- MSH, Zunge, Gaumen, Mundboden: {weichteile}
+- Biss {biss}
+- PSI erhoben: {psi}/PA-aktuell:
+- regelmäßig PZR empf. 2x jährl.; über MK (ca. 110,-) aufgeklärt;
+- Schiene: guter Zustand, Okklusion i.O.
+{roentgen_text}
+
+- Rö-Befund:
+- Planung:
+- Bitte KVA + HKP erstellen:`
+            },
+            'befund-kind': {
+                name: 'Befund (Kind)',
+                category: 'routine',
+                options: [
+                    {
+                        label: 'Patientenstatus',
+                        key: 'status',
+                        type: 'select',
+                        values: ['beschwerdenfrei', 'mit Beschwerden']
+                    },
+                    {
+                        label: 'Begleitung',
+                        key: 'begleitung',
+                        type: 'select',
+                        values: ['mit Mutter', 'mit Vater', 'mit Eltern', 'allein']
+                    },
+                    {
+                        label: 'Bissart',
+                        key: 'biss',
+                        type: 'select',
+                        values: ['normal entwickelt', 'Engstand', 'Distalbiss', 'offener Biss']
+                    },
+                    {
+                        label: 'KFO Behandlung',
+                        key: 'kfo',
+                        type: 'select',
+                        values: ['nicht erforderlich', 'empfohlen', 'läuft bereits', 'abgeschlossen']
+                    },
+                    {
+                        label: 'Mundhygiene',
+                        key: 'mundhygiene',
+                        type: 'select',
+                        values: ['sehr gut', 'gut', 'mäßig', 'schlecht']
+                    }
+                ],
+                template: `Pat. kommt {status} {begleitung} zur Kontrolle, IPs gerade durchgeführt.
+
+01-Befund aufgenommen und bespr.:
+
+- Biss: {biss}
+- KFO Behandlung: {kfo}
+- MSH, Zunge, Gaumen, Mundboden: o.p.B.
+- Muhy: {mundhygiene}, tägliche Anwendung von ZS und wöchentlich Elmex Gelee empf.
+- Duraphat appliziert
+- regelmäßig PZR empf. 2x jährl.; über MK (110,-) aufgeklärt;
+
+OPG+ Bissflügel re,li empf. Pat. ist einverstanden.
+Rö-Befund:
+Planung:
+Bitte KVA + HKP erstellen:
+
+IP1-IP4: angefärbt, im Spiegel gezeigt, API,SBI aufgenommen, poliert m. Superpolish, Putztechnik erklärt, tägliche Anwendung von ZS und wöchentlich Elmex Gelee empf. Handling demonstriert.über Zahnbürste besprochen.Fluoridiert mit Duraphat.`
+            },
+            'fuellung': {
+                name: 'Füllung',
+                category: 'fuellung',
+                options: [
+                    {
+                        label: 'Zahn',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 16'
+                    },
+                    {
+                        label: 'Anästhesie',
+                        key: 'anaesthesie',
+                        type: 'select',
+                        values: ['I/L', 'ohne Anästhesie', 'Oberflächenanästhesie']
+                    },
+                    {
+                        label: 'Füllungsmaterial',
+                        key: 'material',
+                        type: 'select',
+                        values: ['Estelite A', 'Amalgam', 'Glasionomer', 'Kompomer']
+                    },
+                    {
+                        label: 'Flow Material',
+                        key: 'flow',
+                        type: 'select',
+                        values: ['Flow A', 'Flow B', 'kein Flow verwendet']
+                    }
+                ],
+                template: `Pat. kommt beschwerdenfrei zur Füllungstherapie, MKV ist unterschrieben.
+
+Befund: Zahn {zahn} kariös, perk. Vipr.
+
+Therapie:
+{anaesthesie} (Anästhesie), bmF (Matrize,Keil),
+F? Fllg Zahn {zahn} mit {material}, {flow} gelegt, cp (Calcimol),
+
+Okkl. mit Okklusionspapier 40 μm stat./dyn.geprüft, Okklusion eingeschliffen, Ausarbeitung, Politur, fluoridiert
+
+über das Verhalten nach Betäubung informiert
+
+Next: YW/SG U`
+            },
+            'ze-praep': {
+                name: 'ZE Präp',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Zahn/Zähne',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 11, 12'
+                    },
+                    {
+                        label: 'Versorgungsart',
+                        key: 'versorgung',
+                        type: 'select',
+                        values: ['Krone', 'Brücke', 'Inlay', 'Onlay', 'Veneer']
+                    },
+                    {
+                        label: 'Material',
+                        key: 'material',
+                        type: 'select',
+                        values: ['Vollkeramik', 'Metall-Keramik', 'Vollmetall', 'Zirkon']
+                    },
+                    {
+                        label: 'Anästhesie',
+                        key: 'anaesthesie',
+                        type: 'select',
+                        values: ['I/L', 'ohne Anästhesie']
+                    },
+                    {
+                        label: 'Zahnfarbe',
+                        key: 'zahnfarbe',
+                        type: 'input',
+                        placeholder: 'z.B. A2'
+                    }
+                ],
+                template: `{anaesthesie} (Anästhesie):
+
+Versorgungsabformung OK/UK mit EurosilMax,
+Gegenkieferabformung OK/UK mit EurosilMax,
+
+ABF Zahn {zahn} mit Estelite Flow BW gelegt,
+Cp (Calcimol):
+
+Präp für {versorgung} Zahn {zahn} (Material: {material}),
+bmf (Faden gelegt zu Darstellung der Präparationsgrenze),
+
+OK/UK Impregumabformung,
+Bissnahme (FutarD+),
+
+pV mit Kanitemp hergestellt,
+pV mit TempBond NE eingesetzt.
+
+Zementreste entfernt,
+Okklusionskontrolle: o.B.
+
+Zahnfarbe: {zahnfarbe}
+
+Labor:`
+            },
+            'ze-einsetzen': {
+                name: 'ZE Einsetzen',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Zahn/Zähne',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 11'
+                    },
+                    {
+                        label: 'Versorgungsart',
+                        key: 'versorgung',
+                        type: 'select',
+                        values: ['Krone', 'Brücke', 'Inlay', 'Onlay']
+                    },
+                    {
+                        label: 'Kronenränder',
+                        key: 'raender',
+                        type: 'select',
+                        values: ['passgenau', 'geringfügig nachzuarbeiten', 'gut passend']
+                    },
+                    {
+                        label: 'Okklusion',
+                        key: 'okklusion',
+                        type: 'select',
+                        values: ['o.B.', 'eingeschliffen', 'angepasst']
+                    },
+                    {
+                        label: 'Approximalkontakte',
+                        key: 'approximal',
+                        type: 'select',
+                        values: ['o.B.', 'angepasst', 'nachgearbeitet']
+                    },
+                    {
+                        label: 'Farbe',
+                        key: 'farbe',
+                        type: 'select',
+                        values: ['zufriedenstellend', 'sehr gut', 'Patient zufrieden']
+                    }
+                ],
+                template: `pV entfernt,
+
+Stumpf mit Ultraschall gereinigt und mit CHX desinf.,
+
+{versorgung} Zahn {zahn} überprüft:
+
+Kronenränder: {raender}, Okklusion: {okklusion}, Approximalkontakte: {approximal}, Farbe: {farbe}
+
+Pat. die {versorgung} im Handspiegel gezeigt,
+
+Pat. ist zufrieden.
+
+{versorgung} mit Alk. entfettet,
+
+Stumpf mit CHX/H2O2 desinf.,
+
+{versorgung} mit KronFix eingesetzt;
+
+Zementreste entfernt;
+
+Okklusion eingeschliffen und poliert;`
+            },
+            'ze-ktr': {
+                name: 'ZE Kontrolle',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Versorgungsart',
+                        key: 'versorgung',
+                        type: 'select',
+                        values: ['Krone', 'Brücke']
+                    },
+                    {
+                        label: 'Patientenzufriedenheit',
+                        key: 'zufriedenheit',
+                        type: 'select',
+                        values: ['sehr zufrieden', 'zufrieden', 'weitgehend zufrieden']
+                    },
+                    {
+                        label: 'Kronenränder',
+                        key: 'raender',
+                        type: 'select',
+                        values: ['unauffällig', 'o.B.', 'geringfügige Verfärbungen']
+                    },
+                    {
+                        label: 'Okklusion',
+                        key: 'okklusion',
+                        type: 'select',
+                        values: ['o.B.', 'ausgeglichen', 'harmonisch']
+                    },
+                    {
+                        label: 'Approximalkontakt',
+                        key: 'approximal',
+                        type: 'select',
+                        values: ['o.B.', 'korrekt', 'gut']
+                    },
+                    {
+                        label: 'Farbe',
+                        key: 'farbe',
+                        type: 'select',
+                        values: ['harmonisch', 'natürlich', 'zufriedenstellend']
+                    }
+                ],
+                template: `Pat ist {zufriedenheit} mit seiner neuen {versorgung}:
+
+Kronenränder: {raender}, Okklusion: {okklusion}, Approximalkontakt: {approximal}, Farbe: {farbe}`
+            },
+            'endo-wk': {
+                name: 'Endo WK',
+                category: 'endodontie',
+                options: [
+                    {
+                        label: 'Zahn',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 16'
+                    },
+                    {
+                        label: 'Schmerzart',
+                        key: 'schmerz',
+                        type: 'select',
+                        values: ['starke Schmerzen', 'mäßige Schmerzen', 'geringe Schmerzen', 'keine Schmerzen']
+                    },
+                    {
+                        label: 'Druckschmerz',
+                        key: 'druckschmerz',
+                        type: 'select',
+                        values: ['vorhanden', 'nicht vorhanden', 'gering']
+                    },
+                    {
+                        label: 'Vitalitätsprüfung',
+                        key: 'vipr',
+                        type: 'select',
+                        values: ['+', '-', '++', '?']
+                    },
+                    {
+                        label: 'Perkussion',
+                        key: 'perk',
+                        type: 'select',
+                        values: ['+', '-', '++']
+                    },
+                    {
+                        label: 'Anästhesie',
+                        key: 'anaesthesie',
+                        type: 'select',
+                        values: ['I/L', 'ohne Anästhesie']
+                    }
+                ],
+                template: `Pat hat dauerhafte {schmerz} am Zahn {zahn},
+
+Druckschmerzen {druckschmerz}, Spontanschmerzen, lang anhaltende Schmerzen,
+
+Zahn {zahn}:
+Vipr {vipr}, Perk {perk}, ap.DD, Watterollentest,
+
+Pat über Notwendigkeit einer endodontischen Behandlung aufgeklärt,
+
+Entstehung einer ap. Ostitis + Ablauf einer Wurzelkanalbehandlung erklärt,
+
+Rö (ZF Zahn {zahn}) empf. zur ap. Kontrolle,
+
+Rö-Befund:
+
+{anaesthesie} (Anästhesie):
+
+Zahn {zahn}: Trep, WK, Med (Ledermix, Watte, Cavit)
+
+n.T. Medwechsel + MK Aufklärung`
+            },
+            'endo-wf': {
+                name: 'Endo WF',
+                category: 'endodontie',
+                options: [
+                    {
+                        label: 'Zahn',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 16'
+                    },
+                    {
+                        label: 'Symptomstatus',
+                        key: 'symptom',
+                        type: 'select',
+                        values: ['symptomfrei', 'weitgehend symptomfrei', 'mit geringen Beschwerden']
+                    },
+                    {
+                        label: 'Mehrkosten',
+                        key: 'mehrkosten',
+                        type: 'select',
+                        values: ['MIT MK', 'OHNE MK']
+                    },
+                    {
+                        label: 'Mesio-vestibular (mm)',
+                        key: 'mv',
+                        type: 'input',
+                        placeholder: 'z.B. 21'
+                    },
+                    {
+                        label: 'Distal (mm)',
+                        key: 'd',
+                        type: 'input',
+                        placeholder: 'z.B. 20'
+                    },
+                    {
+                        label: 'Mesio-lingual (mm)',
+                        key: 'ml',
+                        type: 'input',
+                        placeholder: 'z.B. 19'
+                    },
+                    {
+                        label: 'ISO Größe',
+                        key: 'iso',
+                        type: 'input',
+                        placeholder: 'z.B. 25'
+                    }
+                ],
+                template: `Zahn {zahn} soweit {symptom};
+
+Perk: -, ap.DD. -, Watterollentest: -,
+
+WF Zahn {zahn}: ({mehrkosten});
+
+pV entfernt, Splg.;
+
+elektrische Längenmessung:
+mv: {mv} mm
+d: {d} mm  
+ml: {ml} mm
+
+maschinelle Aufbereitung bis ISO {iso};
+
+Rö2 (Masterpoint):
+
+Splg. (NaOCl+Zitronensäure+NaCl+CHX);
+
+Trocknung d. Kanäle,
+
+Guttapercha mit BC Sealer eingesetzt,
+
+Rö2 (Kontr.Wurzelfüllung):
+
+prov. Fllg mit TransLit gelegt,
+
+Okkl.eingeschliffen, Ausarbeitung, Politur`
+            },
+            'stift': {
+                name: 'Stift',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Zahn',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 11'
+                    },
+                    {
+                        label: 'Stiftart',
+                        key: 'stiftart',
+                        type: 'select',
+                        values: ['Glasfaserstift', 'Radixanker', 'Titanstift']
+                    }
+                ],
+                template: `Stiftbohrung durchgeführt,
+
+Rö (Stiftlänge):
+
+{stiftart}
+
+SA adhäsiv eingesetzt + ABF Zahn {zahn} mit RelyX,`
+            },
+            'krone-wiederbefestigen': {
+                name: 'Krone wiederbefestigen',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Zahn',
+                        key: 'zahn',
+                        type: 'input',
+                        placeholder: 'z.B. 16'
+                    },
+                    {
+                        label: 'Grund',
+                        key: 'grund',
+                        type: 'select',
+                        values: ['herausgefallen', 'gelockert', 'Zementfraktur']
+                    }
+                ],
+                template: `Pat ist die Krone Zahn {zahn} {grund},
+
+c exkaviert,
+
+Defekt wird von der Krone abgedeckt,
+
+Krone + Stumpf mit Ultraschall gereinigt,
+
+Krone mit Alk. entfettet,
+
+Stumpf mit H2O2 desinf.
+
+Krone mit KronFix eingesetzt,
+
+Zementreste entfernt,
+
+Pat ist zufrieden.
+
+Okkl.kontrolle: o.B,
+
+HKP unterschreiben lassen,`
+            },
+            'wachseinprobe': {
+                name: 'Wachseinprobe',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Prothese',
+                        key: 'prothese',
+                        type: 'select',
+                        values: ['Teleskopprothese OK', 'Teleskopprothese UK', 'Teleskopprothese OK/UK']
+                    },
+                    {
+                        label: 'Okklusion',
+                        key: 'okklusion',
+                        type: 'select',
+                        values: ['o.B.', 'anzupassen', 'korrekt']
+                    },
+                    {
+                        label: 'Halt',
+                        key: 'halt',
+                        type: 'select',
+                        values: ['gut', 'sehr gut', 'ausreichend', 'zu verbessern']
+                    },
+                    {
+                        label: 'Patientenzufriedenheit Zähne',
+                        key: 'zaehne',
+                        type: 'select',
+                        values: ['zufrieden', 'sehr zufrieden', 'teilweise zufrieden']
+                    }
+                ],
+                template: `{prothese} überprüft:
+
+Okklusion: {okklusion},
+
+Halt: {halt}
+
+Zähne: Pat. ist mit Form und Farbe {zaehne}.
+
+Pat. ist zufrieden.
+
+Wangen und Lippen werden gut unterstützt, Profil stimmt,`
+            },
+            'teleskopprothese': {
+                name: 'Teleskopprothese einsetzen',
+                category: 'zahnersatz',
+                options: [
+                    {
+                        label: 'Prothese',
+                        key: 'prothese',
+                        type: 'select',
+                        values: ['Teleskopprothese OK', 'Teleskopprothese UK', 'Teleskopprothese OK/UK']
+                    },
+                    {
+                        label: 'Teleskope',
+                        key: 'teleskope',
+                        type: 'input',
+                        placeholder: 'z.B. 13, 23'
+                    }
+                ],
+                template: `{prothese} überprüft:
+
+Okklusion: o.B.
+
+Halt: gut
+
+Approximalkontakte: o.B.
+
+Zähne: Pat. ist mit Form und Farbe zufrieden.
+
+Wangen und Lippen werden gut unterstützt, Profil stimmt,
+
+Teleskope {teleskope} mit Alk. entfettet,
+
+Sek.teile mit Vaseline beschichtet,
+
+Teleskope mit KronFix eingesetzt,
+
+Zementreste entfernt,
+
+Pat. ist zufrieden.`
+            },
+            'schiene': {
+                name: 'Schiene',
+                category: 'sonstiges',
+                options: [
+                    {
+                        label: 'Schienenart',
+                        key: 'art',
+                        type: 'select',
+                        values: ['Aufbissschiene', 'Knirscherschiene', 'Michigan-Schiene']
+                    },
+                    {
+                        label: 'Sitz',
+                        key: 'sitz',
+                        type: 'select',
+                        values: ['sitzt gut', 'sitzt sehr gut', 'sitzt ausreichend']
+                    },
+                    {
+                        label: 'Okklusion',
+                        key: 'okklusion',
+                        type: 'select',
+                        values: ['o.B.; gleichmäßig', 'ausgeglichen', 'harmonisch']
+                    }
+                ],
+                template: `{art} eingesetzt,
+
+Schiene {sitz},
+
+keine Spannung zu spüren,
+
+Okkl. {okklusion},
+
+keine Störkontakte bei statischer und dynamischer Okkl.
+
+Trage- und Pflegeverhalten erklärt,
+
+Mit Pat Ein- und Ausgliedern geübt,`
+            },
+            'opg': {
+                name: 'OPG',
+                category: 'routine',
+                options: [
+                    {
+                        label: 'Kieferhöhlen',
+                        key: 'kieferhoehlen',
+                        type: 'select',
+                        values: ['o.B.', 'Verschattung', 'Verdickung', 'Auffälligkeiten']
+                    },
+                    {
+                        label: 'Alveolarknochen',
+                        key: 'knochen',
+                        type: 'select',
+                        values: ['o.B.', 'generalisiert bis koronale Wurzeldrittel abgebaut', 'generalisiert bis mittlere Wurzeldrittel abgebaut', 'generalisiert bis apicale Wurzeldrittel abgebaut']
+                    },
+                    {
+                        label: 'Apical',
+                        key: 'apical',
+                        type: 'select',
+                        values: ['unauffällig', 'Aufhellungen', 'Verdichtungen']
+                    },
+                    {
+                        label: 'Füllungen sichtbar an',
+                        key: 'fuellungen',
+                        type: 'input',
+                        placeholder: 'z.B. 16, 17, 26'
+                    },
+                    {
+                        label: 'Wurzelfüllungen sichtbar an',
+                        key: 'wurzelfiillungen',
+                        type: 'input',
+                        placeholder: 'z.B. 11, 21'
+                    }
+                ],
+                template: `Kieferhöhlen, Nasennebenhöhlen und KG soweit beurteilbar {kieferhoehlen}
+
+Alveolarknochen OK UK {knochen}
+
+apical {apical}
+
+Kieferwinkel bds. Knochenapposition
+
+Im Kronenbereich Verschattung im Sinne von Füllungen an {fuellungen}
+
+Im Wurzelbereich Verschattung im Sinne von Wurzelfüllungen an {wurzelfiillungen}`
+            }
+        };
+
+        function selectBillingSystem(system) {
+            currentBillingSystem = system;
+            currentTemplate = null;
+            templateOptions = {};
+            
+            // Update billing button states
+            document.querySelectorAll('.billing-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide categories
+            document.querySelectorAll('.categories').forEach(cat => cat.classList.remove('active'));
+            document.getElementById(system + '-categories').classList.add('active');
+            
+            // Clear all options panels
+            document.querySelectorAll('.options-panel').forEach(panel => {
+                panel.classList.remove('active');
+                panel.innerHTML = '';
+            });
+            
+            document.getElementById('output-text').innerHTML = '<div class="placeholder-text">Wählen Sie eine Behandlungsvorlage aus der linken Spalte.</div>';
+            
+            // Clear template button states
+            document.querySelectorAll('.template-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function selectTemplate(templateId) {
+            currentTemplate = templateId;
+            templateOptions = {};
+            
+            // Update template button states
+            document.querySelectorAll('.template-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide all options panels first
+            document.querySelectorAll('.options-panel').forEach(panel => {
+                panel.classList.remove('active');
+                panel.innerHTML = '';
+            });
+            
+            // Generate options in the correct category panel
+            generateOptions(templateId);
+            
+            // Generate initial text
+            generateText();
+        }
+
+        function generateOptions(templateId) {
+            const template = templates[templateId];
+            if (!template) return;
+            
+            // Determine which options panel to use based on category and billing system
+            const suffix = currentBillingSystem === 'goz' ? '-goz' : '';
+            const panelId = `options-${template.category}${suffix}`;
+            const container = document.getElementById(panelId);
+            
+            if (!container) return;
+            
+            container.innerHTML = '';
+            container.classList.add('active');
+            
+            // Add title
+            const title = document.createElement('h5');
+            title.textContent = `Optionen für: ${template.name}`;
+            container.appendChild(title);
+            
+            template.options.forEach(option => {
+                const optionGroup = document.createElement('div');
+                optionGroup.className = 'option-group';
+                
+                const label = document.createElement('label');
+                label.textContent = option.label;
+                optionGroup.appendChild(label);
+                
+                if (option.type === 'select') {
+                    const optionRow = document.createElement('div');
+                    optionRow.className = 'option-row';
+                    
+                    option.values.forEach(value => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.textContent = value;
+                        btn.onclick = () => selectOption(option.key, value, btn);
+                        optionRow.appendChild(btn);
+                    });
+                    
+                    optionGroup.appendChild(optionRow);
+                } else if (option.type === 'input') {
+                    const input = document.createElement('input');
+                    input.className = 'input-field';
+                    input.type = 'text';
+                    input.placeholder = option.placeholder || '';
+                    input.oninput = (e) => selectOption(option.key, e.target.value);
+                    optionGroup.appendChild(input);
+                }
+                
+                container.appendChild(optionGroup);
+            });
+        }
+
+        function selectOption(key, value, button = null) {
+            templateOptions[key] = value;
+            
+            if (button) {
+                // Remove active class from siblings
+                button.parentNode.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            }
+            
+            generateText();
+        }
+
+        function generateText() {
+            if (!currentTemplate) return;
+            
+            const template = templates[currentTemplate];
+            let text = template.template;
+            
+            // Replace placeholders
+            template.options.forEach(option => {
+                const value = templateOptions[option.key] || `[${option.label}]`;
+                const regex = new RegExp(`\\{${option.key}\\}`, 'g');
+                text = text.replace(regex, value);
+            });
+            
+            // Handle special cases
+            if (currentTemplate === 'befund-erwachsene') {
+                const roentgenValue = templateOptions['roentgen'];
+                let roentgenText = '';
+                if (roentgenValue === 'ja' || roentgenValue === 'OPG + Bissflügel empfohlen') {
+                    roentgenText = '- OPG+ Bissflügel re,li empf. Pat. ist einverstanden.';
+                }
+                text = text.replace('{roentgen_text}', roentgenText);
+            }
+            
+            document.getElementById('output-text').textContent = text;
+        }
+
+        function copyText() {
+            const textElement = document.getElementById('output-text');
+            const text = textElement.textContent;
+            
+            if (text && !text.includes('Wählen Sie')) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showSuccessMessage();
+                }).catch(err => {
+                    console.error('Fehler beim Kopieren:', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showSuccessMessage();
+                });
+            }
+        }
+
+        function showSuccessMessage() {
+            const message = document.getElementById('success-message');
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+
+        function resetAll() {
+            currentBillingSystem = null;
+            currentTemplate = null;
+            templateOptions = {};
+            
+            // Reset billing buttons
+            document.querySelectorAll('.billing-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Hide categories
+            document.querySelectorAll('.categories').forEach(cat => cat.classList.remove('active'));
+            
+            // Reset template buttons
+            document.querySelectorAll('.template-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Clear all options panels
+            document.querySelectorAll('.options-panel').forEach(panel => {
+                panel.classList.remove('active');
+                panel.innerHTML = '';
+            });
+            
+            document.getElementById('output-text').innerHTML = '<div class="placeholder-text">Wählen Sie zunächst ein Abrechnungssystem und dann eine Behandlungsvorlage aus, um die automatische Fallbeschreibung zu starten.</div>';
+        }
+    </script>
+</body>
+</html>
